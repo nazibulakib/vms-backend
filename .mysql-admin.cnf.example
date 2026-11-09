@@ -1,0 +1,7 @@
+# Copy this file to .mysql-admin.cnf and fill in your local MySQL administrator credentials.
+# Keep .mysql-admin.cnf private; it is ignored by Git.
+[client]
+user=root
+password=replace_with_your_mysql_admin_password
+host=localhost
+protocol=SOCKET

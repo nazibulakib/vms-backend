@@ -1,0 +1,21 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.mysql-admin.cnf
+
+# Operating system
+.DS_Store
+Thumbs.db

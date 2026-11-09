@@ -4,7 +4,7 @@ Standalone Java Spring Boot service for the Vehicle Management System. The Flutt
 
 ## Current scope
 
-The backend includes Spring MVC, Spring Security, Spring Data JPA, Bean Validation, MySQL persistence, JSON authentication, and the vehicle REST API. It remains a separate project from the Flutter frontend.
+The backend includes Spring MVC, Spring Security, Spring Data JPA, Bean Validation, MySQL-compatible local development, PostgreSQL deployment support, JSON authentication, and the vehicle REST API. It remains a separate project from the Flutter frontend.
 
 ## Authentication
 
@@ -20,7 +20,7 @@ The application expects the `vehicles` table to match `VehicleEntity`; the local
 
 The endpoint `GET /api/v1/health/database` executes `SELECT 1` and returns HTTP 200 when the configured database is reachable, or HTTP 503 when the connectivity check fails.
 
-H2 is included only for the test profile; tests do not require the MySQL service to be running. Test login credentials are generated at runtime.
+H2 is included only for the test profile; tests do not require a live database. Test login credentials are generated at runtime.
 
 ## Requirements
 
@@ -36,6 +36,27 @@ curl --fail http://localhost:8080/api/v1/health/database
 ```
 
 The service listens on port `8080` with the `/api/v1` context path by default. Override these with `SERVER_PORT` and `SERVER_SERVLET_CONTEXT_PATH`.
+
+## Deploy to Render
+
+Render can build this Java service from the included `Dockerfile`. Create a Render Web Service from `vms-backend`, select Docker, and use the repository root as the Dockerfile path. Spring Boot binds to Render's `PORT` on `0.0.0.0`; the database health check is `GET /api/v1/health/database`.
+
+Set these environment variables in Render (never commit their values):
+
+- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` for the Render PostgreSQL database.
+- `VMS_AUTH_USERNAME` and `VMS_AUTH_PASSWORD` for the course login.
+- `CORS_ALLOWED_ORIGIN_PATTERNS=https://stark-vehicle-management.netlify.app` for the deployed frontend.
+- Optionally `VMS_AUTH_TOKEN_TTL_SECONDS` (defaults to `28800`).
+
+For a no-cost course deployment, create a Free Render Postgres database in the same region as the web service and use its **internal** connection details. Render Free Postgres is limited to 1 GB and expires 30 days after creation, so it is appropriate for a temporary demo rather than long-term data storage. Render Free web services can connect to same-region data stores over the private network. See [Render Free plan limits](https://render.com/docs/free) and [connecting to Render Postgres](https://render.com/docs/postgresql-creating-connecting).
+
+Set `DB_URL` to a JDBC URL in this form, replacing the placeholders with the internal host and database name shown by Render:
+
+```text
+jdbc:postgresql://<internal-host>:5432/<database-name>
+```
+
+Set `DB_USERNAME` and `DB_PASSWORD` from that same Render database. Before the first deploy, apply [`docs/schema-postgresql.sql`](docs/schema-postgresql.sql) to the database: schema creation is intentionally not automatic (`ddl-auto: none`).
 
 The JDBC URL and credentials can be overridden with `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`. Never commit production credentials.
 
